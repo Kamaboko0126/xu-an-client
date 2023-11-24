@@ -29,15 +29,17 @@ export default {
       () => getRouter.path,
       (newPath) => {
         console.log(newPath);
-        if (newPath == "/") {
-          showLoginIcon.value = true;
-        } else {
+        if (newPath !== "/") {
           showLoginIcon.value = false;
+        } else {
+          showLoginIcon.value = true;
         }
       }
     );
 
-    return {};
+    return {
+      showLoginIcon,
+    };
   },
 };
 </script>
@@ -77,6 +79,12 @@ header {
   }
 }
 
+.logo{
+  line-height: 36px;
+  color: var(--main-color);
+  font-weight: bolder;
+}
+
 .nav-items {
   display: flex;
   align-items: center;
@@ -87,23 +95,24 @@ header {
   align-items: center;
   padding: 5px 0;
   cursor: pointer;
-  color: #888;
+  color: var(--main-color);
   transition: color 0.15s ease-in-out;
 }
 .person {
-  background: #888;
+  background: var(--main-color);
   border-radius: 50%;
   color: #fff;
   padding: 1px;
   transition: color 0.15s ease-in-out;
 }
 .person-text {
-  margin-left: 6px;
+  margin-left: 10px;
+  font-weight: bolder;
 }
 .nav-item:hover {
-  color: #000;
+  color: var(--main-hover-color);
 }
 .nav-item:hover i.person {
-  background: #000;
+  background: var(--main-hover-color);
 }
 </style>

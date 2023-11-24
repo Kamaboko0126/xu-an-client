@@ -24,8 +24,9 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 2.2rem 0;
-  background: #888;
+  background: var(--main-color);
   color: #fff;
+  text-align: center;
 }
 
 .banner div:nth-child(2) {

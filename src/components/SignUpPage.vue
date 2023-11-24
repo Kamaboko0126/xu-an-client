@@ -2,9 +2,15 @@
   <div class="container">
     <div class="row">
       <div>
-        <div class="title">Sign Up</div>
+        <div class="title">Sign up</div>
+        <router-link to="/login"
+          ><div class="add-account">Already have one?</div></router-link
+        >
         <input type="text" v-model="email" placeholder="Email" />
         <input type="text" v-model="password" placeholder="Password" />
+        <div class="button-container">
+          <button>Sign up</button>
+        </div>
       </div>
     </div>
   </div>
@@ -62,7 +68,7 @@ export default {
   color: #666;
 }
 
-input {
+input[type="text"] {
   padding: 0.75rem 1.5rem;
   font-size: 1.25rem;
   border-radius: 0.3rem;
@@ -71,5 +77,27 @@ input {
   border: 1px solid rgba(0, 0, 0, 0.15);
   width: 100%;
   margin-top: 25px;
+}
+
+button {
+  color: #fff;
+  background: #888;
+  cursor: pointer;
+  border-radius: 0.3rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.25rem;
+  border: none;
+  margin-top: 25px;
+  transition: background 0.15s ease-in-out;
+}
+
+button:hover {
+  background: #666;
+}
+
+.button-container{
+  display: flex;
+  align-items: center;
+  justify-content: end;
 }
 </style>

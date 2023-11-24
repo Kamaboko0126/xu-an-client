@@ -1,5 +1,5 @@
 <template>
-  <div>{{ isConnected ? "連線成功" : "連線失敗" }}</div>
+  <div>連線狀態：{{ isConnected ? "連線成功" : "連線失敗" }}</div>
 </template>
 
 <script>
