@@ -1,33 +1,60 @@
 <template>
   <header>
     <div class="container">
-      <div class="logo">LOGO</div>
+      <router-link to="/">
+        <div class="logo">LOGO</div>
+      </router-link>
       <div class="nav-items">
-        <div class="nav-item" href="#">Home</div>
-        <div class="nav-item" href="#">
-          <i class="material-icons">login</i>Sign In
-        </div>
-        <div class="nav-item" href="#">Sign Out</div>
+        <router-link to="/login" v-if="showLoginIcon">
+          <div class="nav-item">
+            <i class="material-icons person">person</i
+            ><span class="person-text">訪客</span>
+          </div>
+        </router-link>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-export default {};
+import { useRoute } from "vue-router";
+import { watch, ref } from "vue";
+
+export default {
+  setup() {
+    const showLoginIcon = ref(true);
+    const getRouter = useRoute();
+
+    watch(
+      () => getRouter.path,
+      (newPath) => {
+        console.log(newPath);
+        if (newPath == "/") {
+          showLoginIcon.value = true;
+        } else {
+          showLoginIcon.value = false;
+        }
+      }
+    );
+
+    return {};
+  },
+};
 </script>
 
 <style scoped>
 header {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  justify-content: center;
+  padding: 1rem 1.3rem;
 }
 
 .container {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 @media (min-width: 544px) {
   .container {
@@ -58,6 +85,25 @@ header {
 .nav-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding: 5px 0;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.15s ease-in-out;
+}
+.person {
+  background: #888;
+  border-radius: 50%;
+  color: #fff;
+  padding: 1px;
+  transition: color 0.15s ease-in-out;
+}
+.person-text {
+  margin-left: 6px;
+}
+.nav-item:hover {
+  color: #000;
+}
+.nav-item:hover i.person {
+  background: #000;
 }
 </style>
