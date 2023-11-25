@@ -148,20 +148,39 @@ export default {
         wrongFormat.value = true;
         wrongText.value = "⦁ The email or password can't be empty";
       } else {
-        if(!wrongFormat.value) {
-          console.log("sign in");
-          try {
-          const response = await axios.post("http://127.0.0.1:8000/health", {
+        if (!wrongFormat.value) {
+          let data = {
             email: inputEmail.value,
             password: inputPassword.value,
-          });
+          };
+          let jsonData = JSON.stringify(data);
 
-          // 處理響應
-          console.log(response.data);
-        } catch (error) {
-          // 處理錯誤
-          console.error(error);
-        }
+          console.log("login");
+          try {
+            const res = await axios.post(
+              "http://127.0.0.1:10000/login",
+              jsonData,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            console.log(res.data.status);
+            if (res.data.status == "success") {
+              alert("登入成功");
+            } else if (res.data.status == "invalid email") {
+              alert("無效的信箱，請重新輸入");
+            } else if (res.data.status == "verify yet") {
+              alert("尚未驗證信箱，請至信箱收取驗證信");
+            } else if (res.data.status == "wrong password") {
+              alert("密碼錯誤");
+            }
+            // 處理 response
+          } catch (error) {
+            console.error(error.response.data);
+            // 處理錯誤
+          }
         }
       }
     };

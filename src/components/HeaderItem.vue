@@ -8,7 +8,7 @@
         <router-link to="/login" v-if="showLoginIcon">
           <div class="nav-item">
             <i class="material-icons person">person</i
-            ><span class="person-text">訪客</span>
+            ><span class="person-text">登入</span>
           </div>
         </router-link>
       </div>
@@ -29,8 +29,8 @@ export default {
       () => getRouter.path,
       (newPath) => {
         console.log(newPath);
-        if (newPath !== "/") {
-          showLoginIcon.value = false;
+        if (newPath == "/" || newPath !== "/verify") {
+          showLoginIcon.value = true;
         } else {
           showLoginIcon.value = true;
         }
@@ -79,7 +79,7 @@ header {
   }
 }
 
-.logo{
+.logo {
   line-height: 36px;
   color: var(--main-color);
   font-weight: bolder;

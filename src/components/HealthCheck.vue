@@ -12,7 +12,7 @@ export default {
 
     const connectCheck = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/health");
+        const response = await axios.get("http://127.0.0.1:10000/health");
         isConnected.value = response.data ? true : false;
       } catch (err) {
         console.log("Error connect status:", err);
