@@ -5,40 +5,74 @@
         <div class="logo">LOGO</div>
       </router-link>
       <div class="nav-items">
-        <router-link to="/login" v-if="showLoginIcon">
-          <div class="nav-item">
-            <i class="material-icons person">person</i
-            ><span class="person-text">登入</span>
-          </div>
-        </router-link>
+        <div class="nav-item" @click="checkDestination" v-if="showLoginIcon">
+          <i class="material-icons person">person</i
+          ><span class="person-text">{{ username }}</span>
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <script>
-import { useRoute } from "vue-router";
-import { watch, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { watch, ref, onMounted } from "vue";
 
 export default {
   setup() {
     const showLoginIcon = ref(true);
     const getRouter = useRoute();
+    const username = ref("登入");
+    const router = useRouter();
 
     watch(
       () => getRouter.path,
-      (newPath) => {
-        console.log(newPath);
-        if (newPath == "/" || newPath !== "/verify") {
+      async (newPath) => {
+        checkUser();
+
+        if (newPath == "/" && newPath !== "/verify") {
           showLoginIcon.value = true;
         } else {
-          showLoginIcon.value = true;
+          showLoginIcon.value = false;
         }
       }
     );
 
+    const checkDestination = () => {
+      if (
+        sessionStorage.getItem("islogin") == "true" &&
+        username.value != "登入"
+      ) {
+        router.push("/userinfo");
+      } else if (
+        sessionStorage.getItem("islogin") !== "true" &&
+        username.value === "登入"
+      ) {
+        router.push("/login");
+      } else {
+        router.push("/error");
+      }
+    };
+
+    onMounted(() => {
+      checkUser();
+      console.log(sessionStorage.getItem("islogin"));
+    });
+
+    const checkUser = () => {
+      console.log(sessionStorage.getItem("islogin"));
+      if (sessionStorage.getItem("islogin") == "true") {
+        username.value = sessionStorage.getItem("userfirstname") + sessionStorage.getItem("userlastname");
+      } else {
+        username.value = "登入";
+      }
+    };
+
     return {
       showLoginIcon,
+      username,
+      checkUser,
+      checkDestination,
     };
   },
 };

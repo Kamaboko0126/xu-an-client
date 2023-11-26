@@ -1,17 +1,22 @@
 <template>
   <footer>
     <div class="container">
-      <HealthCheck />
+      <div>
+        <HealthCheck />
+        <VerifyCheck />
+      </div>
     </div>
   </footer>
 </template>
 
 <script>
 import HealthCheck from "./HealthCheck.vue";
+import VerifyCheck from "./VerifyCheck.vue";
 
 export default {
   components: {
     HealthCheck,
+    VerifyCheck,
   },
 };
 </script>

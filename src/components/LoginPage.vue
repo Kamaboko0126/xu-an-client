@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <div>
+      <form @submit.prevent="signIn">
         <div class="title">Sign in</div>
         <router-link to="/signup">
           <div class="add-account">Need an account?</div>
@@ -10,10 +10,11 @@
         <input
           type="text"
           class="email"
-          :class="{ 'mt-15': !wrongFormat }"
+          :class="{ 'mt-25': !wrongFormat }"
           @blur="emailCheck"
           v-model="inputEmail"
           placeholder="Email"
+          @keyup.enter="signIn"
         />
         <input
           type="password"
@@ -21,31 +22,38 @@
           @blur="passwordCheck"
           v-model="inputPassword"
           placeholder="Password"
+          @keyup.enter="signIn"
         />
         <div class="button-container">
-          <button @click="signIn">Sign in</button>
+          <button type="submit">Sign in</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { email } from "@vuelidate/validators";
 import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
-    const inputEmail = ref("");
+    const inputEmail = ref(localStorage.getItem("inputEmail") || "");
     const inputPassword = ref("");
     const wrongFormat = ref(false);
     const wrongText = ref("");
     const firstInputEmail = ref(true);
     const firstInputPassword = ref(true);
+    const router = useRouter();
 
     const v$ = useVuelidate();
+
+    onMounted(() => {
+      inputEmail.value = localStorage.getItem("inputEmail") || "";
+    });
 
     const emailCheck = () => {
       v$.value.$validate();
@@ -148,6 +156,7 @@ export default {
         wrongFormat.value = true;
         wrongText.value = "⦁ The email or password can't be empty";
       } else {
+        wrongFormat.value = false;
         if (!wrongFormat.value) {
           let data = {
             email: inputEmail.value,
@@ -168,13 +177,24 @@ export default {
             );
             console.log(res.data.status);
             if (res.data.status == "success") {
-              alert("登入成功");
+              localStorage.setItem("inputEmail", inputEmail.value);
+              sessionStorage.setItem("islogin", true);
+              sessionStorage.setItem("token", res.data.token);
+              sessionStorage.setItem("userid", res.data.userid);
+              sessionStorage.setItem("userfirstname", res.data.firstname);
+              sessionStorage.setItem("userlastname", res.data.lastname);
+              sessionStorage.setItem("useremail", res.data.useremail);
+              sessionStorage.setItem("username", "");
+              router.push("/");
             } else if (res.data.status == "invalid email") {
-              alert("無效的信箱，請重新輸入");
+              wrongFormat.value = true;
+              wrongText.value = "⦁ Invalid email";
             } else if (res.data.status == "verify yet") {
-              alert("尚未驗證信箱，請至信箱收取驗證信");
+              wrongFormat.value = true;
+              wrongText.value = "⦁ Email verify yet";
             } else if (res.data.status == "wrong password") {
-              alert("密碼錯誤");
+              wrongFormat.value = true;
+              wrongText.value = "⦁ Wrong password";
             }
             // 處理 response
           } catch (error) {
@@ -248,12 +268,13 @@ export default {
 
 .warn-text {
   margin-top: 15px;
+  margin-bottom: 10px;
   color: #b85c5c;
   font-weight: 600;
 }
 
-.mt-15 {
-  margin-top: 15px;
+.mt-25 {
+  margin-top: 25px;
 }
 
 input {

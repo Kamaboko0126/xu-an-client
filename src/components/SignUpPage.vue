@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <div>
+      <form @submit.prevent="send">
         <div class="title">Sign up</div>
         <router-link to="/login">
           <div class="add-account">Already have one?</div>
@@ -45,9 +45,9 @@
           placeholder="Confirm Password"
         />
         <div class="button-container">
-          <button @click="send">Send</button>
+          <button type="submit">Send</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>
@@ -69,6 +69,8 @@ export default {
     const wrongEmailFormat = ref(false);
     const wrongPasswordFormat = ref(false);
     const wrongConfirmPassword = ref(false);
+    const nameRegex = /[^\u4e00-\u9fa5]/;
+    const regex = /[^a-zA-Z0-9]/;
 
     const v$ = useVuelidate();
 
@@ -91,23 +93,41 @@ export default {
     });
 
     const send = async function () {
+      inputFirstName.value = inputFirstName.value.replace(/\s/g, "");
+      inputLastName.value = inputLastName.value.replace(/\s/g, "");
       if (inputFirstName.value === "" || inputLastName.value === "") {
         wrongNameFormat.value = true;
       } else {
-        wrongNameFormat.value = false;
+        if (
+          nameRegex.test(inputFirstName.value) ||
+          nameRegex.test(inputLastName.value)
+        ) {
+          wrongNameFormat.value = true;
+        } else {
+          wrongNameFormat.value = false;
+        }
       }
 
       v$.value.$validate();
+      inputEmail.value = inputEmail.value.replace(/\s/g, "");
       if (v$.value.inputEmail.$error) {
         wrongEmailFormat.value = true;
       } else {
         wrongEmailFormat.value = false;
       }
 
+      inputPassword.value = inputPassword.value.replace(/\s/g, "");
       if (inputPassword.value === "" || inputPassword.value.length < 6) {
         wrongPasswordFormat.value = true;
       } else {
-        wrongPasswordFormat.value = false;
+        if (
+          regex.test(inputPassword.value) ||
+          regex.test(inputPassword.value)
+        ) {
+          wrongPasswordFormat.value = true;
+        } else {
+          wrongPasswordFormat.value = false;
+        }
       }
 
       if (inputPassword.value != inputConfirmPassword.value) {
@@ -228,7 +248,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 15px;
 }
 
 .name {
@@ -236,13 +255,10 @@ export default {
 }
 
 .warn-text {
+  margin-bottom: -15px;
   margin-top: 15px;
   color: #b85c5c;
   font-weight: 600;
-}
-
-.mt-15 {
-  margin-top: 15px;
 }
 
 input {
@@ -253,14 +269,11 @@ input {
   background-color: #fff;
   border: 1.5px solid var(--main-color);
   width: 100%;
-}
-input::placeholder {
-  color: var(--main-color);
+  margin-top: 25px;
 }
 
-.password,
-.confirmpassword {
-  margin-top: 25px;
+input::placeholder {
+  color: var(--main-color);
 }
 
 button {
