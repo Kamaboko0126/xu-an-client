@@ -48,7 +48,6 @@ export default {
     const inputOldPassword = ref("");
     const inputNewPassword = ref("");
     const inputConfirmPassword = ref("");
-    const user_id = ref(sessionStorage.getItem("user_id") || "");
 
     const isProcessing = ref(false);
 
@@ -80,7 +79,7 @@ export default {
           wranOldPasswordText.value = "⦁ 密碼只能包含英文和數字";
           isProcessing.value = false;
         } else {
-          wranOldPasswordText.value = false;
+          wrongOldPasswordFormat.value = false;
         }
       }
 
@@ -99,9 +98,8 @@ export default {
             wranNewPasswordText.value = "⦁ 新密碼不能和舊密碼相同";
             isProcessing.value = false;
           } else {
-            wranNewPasswordText.value = false;
+            wrongNewPasswordFormat.value = false;
           }
-          wranNewPasswordText.value = false;
         }
       }
 
@@ -118,7 +116,7 @@ export default {
         !wrongConfirmPassword.value
       ) {
         let data = {
-          user_id: user_id.value,
+          user_id: sessionStorage.getItem("userid"),
           oldPassword: inputOldPassword.value,
           newPassword: inputNewPassword.value,
         };
@@ -134,6 +132,7 @@ export default {
               },
             }
           );
+          console.log(res.data.status);
           if (res.data.status == "success") {
             alert("更改成功");
             router.push("/userinfo");
@@ -141,31 +140,36 @@ export default {
           } else if (res.data.status == "wrong password") {
             wrongOldPasswordFormat.value = true;
             wranOldPasswordText.value = "⦁ 密碼錯誤";
+            isProcessing.value = false;
             // 你可以在這裡添加其他更新失敗的操作
           } else {
             wrongOldPasswordFormat.value = true;
-            isProcessing.value = false;
             wranOldPasswordText.value = "⦁ 更新失敗";
+            isProcessing.value = false;
           }
         } catch (error) {
-          console.error(error.response.data);
+          if (error.response.data.status == "too many times") {
+            wrongOldPasswordFormat.value = true;
+            wranOldPasswordText.value = "⦁ Too many times, please try again later";
+            isProcessing.value = false;
+          } else {
+            console.log(error.response.data);
+          }
           // 處理錯誤
         }
       }
     };
 
     return {
+      isProcessing,
       inputOldPassword,
       inputNewPassword,
       inputConfirmPassword,
-
       wrongOldPasswordFormat,
       wranOldPasswordText,
       wrongNewPasswordFormat,
       wranNewPasswordText,
       wrongConfirmPassword,
-
-      isProcessing,
       edit,
     };
   },

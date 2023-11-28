@@ -53,6 +53,7 @@ export default {
     const regex = /[^a-zA-Z0-9]/;
 
     const edit = async () => {
+      console.log("edit");
       isProcessing.value = true;
 
       inputFirstName.value = inputFirstName.value.replace(/\s/g, "");
@@ -72,7 +73,7 @@ export default {
       } else {
         wrongFormat.value = false;
       }
-      
+
       inputPassword.value = inputPassword.value.replace(/\s/g, "");
       if (inputPassword.value === "") {
         wrongFormat.value = true;
@@ -121,12 +122,19 @@ export default {
           wrongText.value = "⦁ 更新失敗";
         }
       } catch (error) {
-        console.error(error.response.data);
+        if (error.response.data.status == "too many times") {
+          wrongFormat.value = true;
+          wrongText.value = "⦁ Too many times, please try again later";
+          isProcessing.value = false;
+        } else {
+          console.log(error.response.data);
+        }
         // 處理錯誤
       }
     };
 
     return {
+      isProcessing,
       inputFirstName,
       inputLastName,
       inputPassword,
