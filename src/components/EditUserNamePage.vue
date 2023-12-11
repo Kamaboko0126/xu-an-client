@@ -53,6 +53,7 @@ export default {
     const regex = /[^a-zA-Z0-9]/;
 
     const edit = async () => {
+      if(isProcessing.value) return;
       console.log("edit");
       isProcessing.value = true;
 

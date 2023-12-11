@@ -7,6 +7,7 @@ import UserInfoPage from "@/components/UserInfoPage";
 import ErrorPage from "@/components/ErrorPage";
 import EditUserNamePage from "@/components/EditUserNamePage";
 import ChangePasswrdPage from "@/components/ChangePasswrdPage";
+import AdminPage from "@/components/AdminPage";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -51,6 +52,11 @@ const router = createRouter({
       name: "change",
       component: ChangePasswrdPage,
     },
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminPage,
+    }
   ],
 });
 

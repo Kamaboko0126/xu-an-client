@@ -61,6 +61,7 @@ export default {
     const regex = /[^a-zA-Z0-9]/;
 
     const edit = async () => {
+      if(isProcessing.value) return;
       isProcessing.value = true;
 
       inputOldPassword.value = inputOldPassword.value.replace(/\s/g, "");

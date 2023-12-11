@@ -105,6 +105,7 @@ export default {
     });
 
     const send = async function () {
+      if(isProcessing.value) return;
       inputFirstName.value = inputFirstName.value.replace(/\s/g, "");
       inputLastName.value = inputLastName.value.replace(/\s/g, "");
 
