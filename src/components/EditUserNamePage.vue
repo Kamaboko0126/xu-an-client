@@ -1,8 +1,9 @@
 <template>
   <div class="container">
     <div class="row">
-      <div>
+      <form @submit.prevent="edit">
         <div class="title">編輯姓名</div>
+        <div class="warn-text" v-if="wrongFormat">{{ wrongText }}</div>
         <div class="name-container">
           <input
             type="text"
@@ -24,9 +25,9 @@
           placeholder="Password"
         />
         <div class="button-container">
-          <button @click="edit">Edit</button>
+          <button type="submit" :disabled="isProcessing">Edit</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>
@@ -41,10 +42,56 @@ export default {
     const inputFirstName = ref(sessionStorage.getItem("userfirstname"));
     const inputLastName = ref(sessionStorage.getItem("userlastname"));
     const inputPassword = ref("");
+    const isProcessing = ref(false);
+
+    const wrongFormat = ref(false);
+    const wrongText = ref("");
+
     const userId = ref(sessionStorage.getItem("userid"));
     const router = useRouter();
+    const nameRegex = /[^\u4e00-\u9fa5]/;
+    const regex = /[^a-zA-Z0-9]/;
 
     const edit = async () => {
+      if(isProcessing.value) return;
+      console.log("edit");
+      isProcessing.value = true;
+
+      inputFirstName.value = inputFirstName.value.replace(/\s/g, "");
+      if (inputFirstName.value === "" || inputLastName.value === "") {
+        wrongFormat.value = true;
+        wrongText.value = "⦁ 請輸入姓名";
+        isProcessing.value = false;
+        return;
+      } else if (
+        nameRegex.test(inputFirstName.value) ||
+        nameRegex.test(inputLastName.value)
+      ) {
+        wrongFormat.value = true;
+        wrongText.value = "⦁ 姓名只能包含中文";
+        isProcessing.value = false;
+        return;
+      } else {
+        wrongFormat.value = false;
+      }
+
+      inputPassword.value = inputPassword.value.replace(/\s/g, "");
+      if (inputPassword.value === "") {
+        wrongFormat.value = true;
+        wrongText.value = "⦁ 請輸入密碼";
+        isProcessing.value = false;
+        return;
+      } else {
+        if (regex.test(inputPassword.value)) {
+          wrongFormat.value = true;
+          wrongText.value = "⦁ 密碼只能包含英文和數字";
+          isProcessing.value = false;
+          return;
+        } else {
+          wrongFormat.value = false;
+        }
+      }
+
       let data = {
         user_id: userId.value,
         password: inputPassword.value,
@@ -62,24 +109,38 @@ export default {
         if (res.data.status == "success") {
           sessionStorage.setItem("userfirstname", res.data.firstname);
           sessionStorage.setItem("userlastname", res.data.lastname);
+          alert("更新成功");
           router.push("/userinfo");
           // 你可以在這裡添加其他成功更新後的操作
         } else if (res.data.status == "wrong password") {
-          alert("密碼錯誤");
+          wrongFormat.value = true;
+          isProcessing.value = false;
+          wrongText.value = "⦁ 密碼錯誤";
           // 你可以在這裡添加其他更新失敗的操作
         } else {
-          alert("更新失敗");
+          wrongFormat.value = true;
+          isProcessing.value = false;
+          wrongText.value = "⦁ 更新失敗";
         }
       } catch (error) {
-        console.error(error.response.data);
+        if (error.response.data.status == "too many times") {
+          wrongFormat.value = true;
+          wrongText.value = "⦁ Too many times, please try again later";
+          isProcessing.value = false;
+        } else {
+          console.log(error.response.data);
+        }
         // 處理錯誤
       }
     };
 
     return {
+      isProcessing,
       inputFirstName,
       inputLastName,
       inputPassword,
+      wrongFormat,
+      wrongText,
       edit,
     };
   },
@@ -157,6 +218,13 @@ input {
   margin-top: 25px;
 }
 
+.warn-text {
+  margin-top: 15px;
+  margin-bottom: -10px;
+  color: #b85c5c;
+  font-weight: 600;
+}
+
 input::placeholder {
   color: var(--main-color);
 }
@@ -175,6 +243,11 @@ button {
 
 button:hover {
   background: var(--main-hover-color);
+}
+
+button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
 }
 
 .button-container {

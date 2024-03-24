@@ -14,7 +14,6 @@
           @blur="emailCheck"
           v-model="inputEmail"
           placeholder="Email"
-          @keyup.enter="signIn"
         />
         <input
           type="password"
@@ -22,10 +21,9 @@
           @blur="passwordCheck"
           v-model="inputPassword"
           placeholder="Password"
-          @keyup.enter="signIn"
         />
         <div class="button-container">
-          <button type="submit">Sign in</button>
+          <button type="submit" :disabled="isProcessing">Sign in</button>
         </div>
       </form>
     </div>
@@ -48,6 +46,7 @@ export default {
     const firstInputEmail = ref(true);
     const firstInputPassword = ref(true);
     const router = useRouter();
+    const isProcessing = ref(false);
 
     const v$ = useVuelidate();
 
@@ -152,9 +151,12 @@ export default {
     };
 
     const signIn = async function () {
+      isProcessing.value = true;
+
       if (inputEmail.value == "" || inputPassword.value == "") {
         wrongFormat.value = true;
         wrongText.value = "⦁ The email or password can't be empty";
+        isProcessing.value = false;
       } else {
         wrongFormat.value = false;
         if (!wrongFormat.value) {
@@ -189,16 +191,25 @@ export default {
             } else if (res.data.status == "invalid email") {
               wrongFormat.value = true;
               wrongText.value = "⦁ Invalid email";
+              isProcessing.value = false;
             } else if (res.data.status == "verify yet") {
               wrongFormat.value = true;
               wrongText.value = "⦁ Email verify yet";
+              isProcessing.value = false;
             } else if (res.data.status == "wrong password") {
               wrongFormat.value = true;
               wrongText.value = "⦁ Wrong password";
+              isProcessing.value = false;
             }
             // 處理 response
           } catch (error) {
-            console.error(error.response.data);
+            if(error.response.data.status == "too many times"){
+              wrongFormat.value = true;
+              wrongText.value = "⦁ Too many times, please try again later";
+              isProcessing.value = false;
+            }else{
+              console.log(error.response.data);
+            }
             // 處理錯誤
           }
         }
@@ -213,6 +224,7 @@ export default {
       wrongText,
       signIn,
       passwordCheck,
+      isProcessing,
       v$,
     };
   },
@@ -308,6 +320,11 @@ button {
 
 button:hover {
   background: var(--main-hover-color);
+}
+
+button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
 }
 
 .button-container {

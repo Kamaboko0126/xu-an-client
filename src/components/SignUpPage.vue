@@ -6,7 +6,8 @@
         <router-link to="/login">
           <div class="add-account">Already have one?</div>
         </router-link>
-        <div class="warn-text" v-if="wrongNameFormat">⦁ Wrong format</div>
+        <div class="warn-text" v-if="signUpFail">{{ wranText }}</div>
+        <div class="warn-text" v-if="wrongNameFormat">{{ wranNameText }}</div>
         <div class="name-container">
           <input
             type="text"
@@ -21,14 +22,16 @@
             placeholder="Last Name"
           />
         </div>
-        <div class="warn-text" v-if="wrongEmailFormat">⦁ Wrong format</div>
+        <div class="warn-text" v-if="wrongEmailFormat">{{ wranEmailText }}</div>
         <input
           type="text"
           class="email"
           v-model="inputEmail"
           placeholder="Email"
         />
-        <div class="warn-text" v-if="wrongPasswordFormat">⦁ Wrong format</div>
+        <div class="warn-text" v-if="wrongPasswordFormat">
+          {{ wranPasswrodText }}
+        </div>
         <input
           type="password"
           class="password"
@@ -45,7 +48,7 @@
           placeholder="Confirm Password"
         />
         <div class="button-container">
-          <button type="submit">Send</button>
+          <button type="submit" :disabled="isProcessing">Send</button>
         </div>
       </form>
     </div>
@@ -57,6 +60,7 @@ import { ref, watch, onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { email } from "@vuelidate/validators";
 import axios from "axios";
+import router from "@/router";
 
 export default {
   setup() {
@@ -65,12 +69,20 @@ export default {
     const inputEmail = ref(sessionStorage.getItem("inputEmail") || "");
     const inputPassword = ref("");
     const inputConfirmPassword = ref("");
+    const isProcessing = ref(false);
+
     const wrongNameFormat = ref(false);
+    const wranNameText = ref("");
     const wrongEmailFormat = ref(false);
+    const wranEmailText = ref("");
     const wrongPasswordFormat = ref(false);
+    const wranPasswrodText = ref("");
     const wrongConfirmPassword = ref(false);
     const nameRegex = /[^\u4e00-\u9fa5]/;
     const regex = /[^a-zA-Z0-9]/;
+
+    const signUpFail = ref(false);
+    const wranText = ref("");
 
     const v$ = useVuelidate();
 
@@ -93,16 +105,25 @@ export default {
     });
 
     const send = async function () {
+      if(isProcessing.value) return;
       inputFirstName.value = inputFirstName.value.replace(/\s/g, "");
       inputLastName.value = inputLastName.value.replace(/\s/g, "");
+
+      isProcessing.value = true;
+
       if (inputFirstName.value === "" || inputLastName.value === "") {
+        isProcessing.value = false;
         wrongNameFormat.value = true;
+        wranNameText.value = "⦁ First Name and Last Name cannot be empty!";
       } else {
         if (
           nameRegex.test(inputFirstName.value) ||
           nameRegex.test(inputLastName.value)
         ) {
+          isProcessing.value = false;
           wrongNameFormat.value = true;
+          wranNameText.value =
+            "⦁ First Name and Last Name can only contain Chinese characters!";
         } else {
           wrongNameFormat.value = false;
         }
@@ -110,29 +131,43 @@ export default {
 
       v$.value.$validate();
       inputEmail.value = inputEmail.value.replace(/\s/g, "");
-      if (v$.value.inputEmail.$error) {
+      if (inputEmail.value === "") {
         wrongEmailFormat.value = true;
+        wranEmailText.value = "⦁ Email cannot be empty!";
+        isProcessing.value = false;
       } else {
-        wrongEmailFormat.value = false;
+        if (v$.value.inputEmail.$error) {
+          wrongEmailFormat.value = true;
+          wranEmailText.value = "⦁ Email format is wrong!";
+          isProcessing.value = false;
+        } else {
+          wrongEmailFormat.value = false;
+        }
       }
 
       inputPassword.value = inputPassword.value.replace(/\s/g, "");
       if (inputPassword.value === "" || inputPassword.value.length < 6) {
+        isProcessing.value = false;
         wrongPasswordFormat.value = true;
+        wranPasswrodText.value =
+          "⦁ Password must be at least 6 characters long!";
       } else {
         if (
           regex.test(inputPassword.value) ||
           regex.test(inputPassword.value)
         ) {
+          isProcessing.value = false;
           wrongPasswordFormat.value = true;
+          wranPasswrodText.value =
+            "⦁ Password can only contain letters and numbers!";
         } else {
           wrongPasswordFormat.value = false;
         }
       }
 
       if (inputPassword.value != inputConfirmPassword.value) {
+        isProcessing.value = false;
         wrongConfirmPassword.value = true;
-        console.log(inputPassword.value, inputConfirmPassword.value);
       } else {
         wrongConfirmPassword.value = false;
       }
@@ -168,14 +203,22 @@ export default {
             }
           ); // 處理響應
           if (response.data.status === "Success") {
-            alert("Sign up success");
-            window.location.href = "/verify";
+            alert("註冊成功");
+            sessionStorage.setItem("inputFirstName", "");
+            sessionStorage.setItem("inputLastName", "");
+            sessionStorage.setItem("inputEmail", "");
+            router.push("/verify");
           } else if (response.data.status === "already registered") {
-            alert("Email already registered!");
+            signUpFail.value = true;
+            wranText.value = "⦁ Email already registered!";
+            isProcessing.value = false;
           }
         } catch (error) {
           // 處理錯誤
           console.error(error.response.data);
+          isProcessing.value = false;
+          signUpFail.value = true;
+          wranText.value = "⦁ Something wrong!";
         }
       }
     };
@@ -186,9 +229,17 @@ export default {
       inputEmail,
       inputPassword,
       inputConfirmPassword,
+      isProcessing,
+
+      signUpFail,
+      wranText,
+
       wrongNameFormat,
+      wranNameText,
       wrongEmailFormat,
+      wranEmailText,
       wrongPasswordFormat,
+      wranPasswrodText,
       wrongConfirmPassword,
       send,
       v$,
@@ -290,6 +341,11 @@ button {
 
 button:hover {
   background: var(--main-hover-color);
+}
+
+button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
 }
 
 .button-container {
