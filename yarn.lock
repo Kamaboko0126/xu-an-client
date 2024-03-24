@@ -2083,7 +2083,7 @@ autoprefixer@^10.2.4:
     picocolors "^1.0.0"
     postcss-value-parser "^4.2.0"
 
-axios@^1.6.2:
+axios@^1.4.0, axios@^1.6.2:
   version "1.6.2"
   resolved "https://registry.npmjs.org/axios/-/axios-1.6.2.tgz"
   integrity sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==
@@ -3571,6 +3571,14 @@ globby@^11.0.2, globby@^11.0.3:
     ignore "^5.2.0"
     merge2 "^1.4.1"
     slash "^3.0.0"
+
+google-spreadsheet@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/google-spreadsheet/-/google-spreadsheet-4.1.1.tgz"
+  integrity sha512-Npk/xAMTgxEt/m/X9EXIqdY6CEYGiqUHrSuiLnNSKli5H+wiOQLSLsnfMxcdNPH6aSh6GttZm6QJhrnsxjwpZQ==
+  dependencies:
+    axios "^1.4.0"
+    lodash "^4.17.21"
 
 gopd@^1.0.1:
   version "1.0.1"
